@@ -10,29 +10,37 @@ Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
 2.Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
 3.Eliminar el Pedido con id_ped 12345.
 4.Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
-5. Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
+5.Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
 6.Listar los artículos que se vendieron más de 15 veces durante el 2023.
 
 ﻿AR:
 
 1. 
 
-ArticulosNOHeladeras <= (σ (tipo <> 'Heladera' (Articulo))
+ArticulosNOHeladeras <= (σ (tipo <> 'Heladera') (Articulo))
 ClientesNOHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloNOHeladeras))
 ClientesSOLOHeladeras <= π DNI, apellido, nombre, domicilio, contacto (Cliente - ClientesNOHeladeras)
 
 Otra solucion:
 
-ArticulosNOHeladeras <= (σ (tipo <> 'Heladera' (Articulo))
-ArticulosHeladeras <= (σ (tipo = 'Heladera' (Articulo))
+ArticulosNOHeladeras <= (σ (tipo <> 'Heladera') (Articulo))
+ArticulosHeladeras <= (σ (tipo = 'Heladera') (Articulo))
 ClientesNOHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloNOHeladeras))
 ClientesHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloHeladeras))
-ClientesSOLOHeladeras <= π DNI, apellido, nombre, domicilio, contacto (ClienteHeladeras - ClientesNOHeladeras)
+ClientesSOLOHeladeras <= π DNI, apellido, nombre, domicilio, contacto (ClientesHeladeras - ClientesNOHeladeras)
 
 
 2. 
+Clientes2023 <= (σ (fechaPed >= '01/01/2023') ^ (fechaPed =< '31/12/2023') (Cliente |x| Pedidos))
+Clientes2024 <= (σ (fechaPed >= '01/01/2024') ^ (fechaPed =< '31/12/2024') (Cliente |x| Pedidos))
+Clientes2023y2024 <= π contacto (Clientes2023 ∩ Clientes2024)
 
+3.
 
+Pedidos <= Pedidos - (σ (id_ped = 12345) (Pedidos))
+Detalle_Pedido <= Detalle_Pedido - (σ (id_ped = 12345) (Detalle_Pedido))
+
+4.
 
 σ
 

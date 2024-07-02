@@ -1,50 +1,27 @@
-ubicacion
-(1. N)
-Venta
-precioCompra stockActual
-precio Total
-nroCuolas (0, 1)
-fecha
-interes (0, 1)
-formaPago
-stockMin
-descripcion
-(21)
-(4,N)
+
 Consultas (Realizar en AR: 1, 2, 3 y 4 y en SQL: 2, 3, 4, 5 y 6)
-Cliente = (id_cli, DNI, apellido, nombre, domicilio, contacto) Artículo (id art, tipo, desc, stock, precio)
-Pedidos (id_ped, fecha Ped, fecha Env, id_cli (FK)) Detalle_Pedido (id ped (FK), id art (FK), cant, pre_unit)
-artic
-Listar los DNI, apellido y nombre de los clientes que solo compraron artículos con el tipo 'Heladera'. Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
-1.
-2.
-3.
-Eliminar el Pedido con id_ped 12345.
-Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
-4.
+
+Cliente = (id_cli, DNI, apellido, nombre, domicilio, contacto) 
+Artículo (id_art, tipo, desc, stock, precio)
+Pedidos (id_ped, fechaPed, fechaEnv, id_cli (FK)) 
+Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
+
+1.Listar los DNI, apellido y nombre de los clientes que solo compraron artículos con el tipo 'Heladera'. 
+2.Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
+3.Eliminar el Pedido con id_ped 12345.
+4.Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
 5. Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
-6.
-Listar los artículos que se vendieron más de 15 veces durante el 2023.
-todas las atulate
-
-
+6.Listar los artículos que se vendieron más de 15 veces durante el 2023.
 
 ﻿
 
-fecha vencimiento o-
-Tareas
-cambia
-(0,n)
-Estado
-codigo
--o descripcion
-2.
-3.
-Consultas
-on (CIN
-(0,n)
-depende
-IR
+
+
+
+
+
+
+
 Resolver del 1 al 4 AR y del 2 al 6 en SQL
 Socio-(DNI,CUIL, apellido, nombre, domicilio, telefono)
 Libro-(ISBN, título, autor, género, stock, precio)

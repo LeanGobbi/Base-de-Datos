@@ -21,9 +21,17 @@ ArticulosNOHeladeras <= (σ (tipo <> 'Heladera' (Articulo))
 ClientesNOHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloNOHeladeras))
 ClientesSOLOHeladeras <= π DNI, apellido, nombre, domicilio, contacto (Cliente - ClientesNOHeladeras)
 
+Otra solucion:
+
+ArticulosNOHeladeras <= (σ (tipo <> 'Heladera' (Articulo))
+ArticulosHeladeras <= (σ (tipo = 'Heladera' (Articulo))
+ClientesNOHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloNOHeladeras))
+ClientesHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloHeladeras))
+ClientesSOLOHeladeras <= π DNI, apellido, nombre, domicilio, contacto (ClienteHeladeras - ClientesNOHeladeras)
 
 
 2. 
+
 
 
 σ

@@ -16,7 +16,6 @@ Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
 ﻿AR:
 
 1. 
-
 ArticulosNOHeladeras <= (σ (tipo <> 'Heladera') (Articulo))
 ClientesNOHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloNOHeladeras))
 ClientesSOLOHeladeras <= π DNI, apellido, nombre, domicilio, contacto (Cliente - ClientesNOHeladeras)
@@ -36,13 +35,39 @@ Clientes2024 <= (σ (fechaPed >= '01/01/2024') ^ (fechaPed =< '31/12/2024') (Cli
 Clientes2023y2024 <= π contacto (Clientes2023 ∩ Clientes2024)
 
 3.
-
 Pedidos <= Pedidos - (σ (id_ped = 12345) (Pedidos))
 Detalle_Pedido <= Detalle_Pedido - (σ (id_ped = 12345) (Detalle_Pedido))
 
 4.
+ClientesxArticulo <= π id_cli, id_art Cliente |x| (Pedidos |x| Detalle_Pedido))
+ArticulosTodos <= π id_art (Articulo)
+ClientesTODOSArticulos <= π nombre,apellido Cliente |x| (ClientesxArticulo % ArticulosTodos)
+
+
+SQL:
+
+2.Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
+3.Eliminar el Pedido con id_ped 12345.
+4.Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
+5.Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
+6.Listar los artículos que se vendieron más de 15 veces durante el 2023.
 
 σ
+
+2. 
+SELECT DISTINCT c.contacto
+FROM Cliente c
+INNER JOIN Pedidos p ON (p.id_cli = c.id_cli)
+WHERE YEAR (p.fechaPed) = 2023
+
+INTERSECT
+  SELECT DISTINCT c.contacto
+  FROM Cliente c
+  INNER JOIN Pedidos p ON (p.id_cli = c.id_cli)
+  WHERE YEAR (p.fechaPed) = 2024
+
+3.
+
 
 
 

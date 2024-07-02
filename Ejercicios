@@ -13,8 +13,20 @@ Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
 5. Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
 6.Listar los artículos que se vendieron más de 15 veces durante el 2023.
 
-﻿
+﻿AR:
 
+1. 
+
+ArticulosNOHeladeras <= (σ (tipo <> 'Heladera' (Articulo))
+ClientesNOHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloNOHeladeras))
+ClientesSOLOHeladeras <= π DNI, apellido, nombre, domicilio, contacto (Cliente - ClientesNOHeladeras)
+
+
+
+2. 
+
+
+σ
 
 
 

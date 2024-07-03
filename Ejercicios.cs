@@ -95,39 +95,48 @@ HAVING COUNT (*) > 15
 
 
 
-
-
-
-
-
-Consultas (Realizar en AR: 1, 2, 3 y 4 y en SQL: 2, 3, 4, 5 y 6)
-Cliente = (id_cli, DNI, apellido, nombre, domicilio, contacto) 
-Artículo (id_art, tipo, desc, stock, precio)
-Pedidos (id_ped, fechaPed, fechaEnv, id_cli (FK)) 
-Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
-
-1. Listar los DNI, apellido y nombre de los clientes que solo compraron artículos con el tipo 'Heladera'. 
-2. Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
-3. Eliminar el Pedido con id_ped 12345.
-4. Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
-5. Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
-6. Listar los artículos que se vendieron más de 15 veces durante el 2023.
-
-
 Resolver del 1 al 4 AR y del 2 al 6 en SQL
-Socio-(DNI,CUIL, apellido, nombre, domicilio, telefono)
-Libro-(ISBN, título, autor, género, stock, precio)
-(runchy a
-muchar
-Tino a mucho.. Total unbarb Rancial musha Parcial I
-rolan
-Vancial andre) IR
-Préstamo (id_prestamo fecha Prestamo, fecha Devolucion Tentativa, fechaDevEfectiva?, DNI(FK)) Detalle Préstamo=(id_prestamo (FK). ISBN (FK), precio, estado_dev?)
-375
-1. Listar los datos de los socios que tienen préstamos con devoluciones (fecha DevEfectiva) mayor a la fecha pactada y también tienen devoluciones donde el estado_dev es malo.
-Listar los socios que solo tienen préstamos en el mes actual. (NO PORTA S. DEVOLUERON O
-ONO)
-Modificar el precio de los libros incrementándolo en un 10%.
+Socio = (DNI,CUIL, apellido, nombre, domicilio, telefono)
+Libro = (ISBN, título, autor, género, stock, precio)
+Préstamo = (id_prestamo, fechaPrestamo, fechaDevolucionTentativa, fechaDevEfectiva?, DNI(FK)) 
+Detalle_Préstamo = (id_prestamo (FK), ISBN (FK), precio, estado_dev?)
+  
+1. Listar los datos de los socios que tienen préstamos con devoluciones (fechaDevEfectiva) mayor a la fecha pactada y también tienen devoluciones donde el estado_dev es malo.
+2. Listar los socios que solo tienen préstamos en el mes actual. (DEVUELTOS O NO)
+3. Modificar el precio de los libros incrementándolo en un 10%.
+4. Listar los socios que tuvieron prestados todos los libros.
+5. Informar la cantidad de préstamos del mes actual.
+6. Listar todos los datos del socio o de los socios que tienen mayor cantidad de préstamos en el año 2023.
+
+AR:
+
+1.
+SociosDevolucionesFechaMayor <= π DNI (σ (fechaDevEfectiva > fechaDevolucionTentativa) (Prestamo))
+SociosEstadoDevMalo <= π DNI (σ (estado_dev = 'MALO') (Prestamo |x| Detalle_Prestamo))
+SociosFinales <= π DNI, CUIL, apellido, nombre, domicilio, telefono (Socio |x| (SociosDevolucionesFechaMayor ∩ SociosEstadoDevMalo))
+
+2.
+
+SociosPrestamosJunio <= π DNI (σ (fechaPrestamo >= '01/06/2024') ^ (fechaPrestamo =< '30/06/2024') (Socio |x| Prestamo))
+SociosPrestamosNOJunio <= π DNI (σ (fechaPrestamo < '01/06/2024') ∨ (fechaPrestamo > '30/06/2024') (Socio |x| Prestamo))
+SociosPrestamosSOLOJunio <= π DNI, CUIL, apellido, nombre, domicilio, telefono (Socio |x| (SociosPrestamosJunio - SociosPrestamosNOJunio))
+
+3.
+
+
+
+
+
+
+  Resolver del 1 al 4 AR y del 2 al 6 en SQL
+Socio = (DNI,CUIL, apellido, nombre, domicilio, telefono)
+Libro = (ISBN, título, autor, género, stock, precio)
+Préstamo = (id_prestamo, fecha Prestamo, fechaDevolucionTentativa, fechaDevEfectiva?, DNI(FK)) 
+Detalle_Préstamo = (id_prestamo (FK), ISBN (FK), precio, estado_dev?)
+  
+1. Listar los datos de los socios que tienen préstamos con devoluciones (fechaDevEfectiva) mayor a la fecha pactada y también tienen devoluciones donde el estado_dev es malo.
+2. Listar los socios que solo tienen préstamos en el mes actual. (DEVUELTOS O NO)
+3. Modificar el precio de los libros incrementándolo en un 10%.
 4. Listar los socios que tuvieron prestados todos los libros.
 5. Informar la cantidad de préstamos del mes actual.
 6. Listar todos los datos del socio o de los socios que tienen mayor cantidad de préstamos en el año 2023.

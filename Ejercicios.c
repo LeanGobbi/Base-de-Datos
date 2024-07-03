@@ -6,15 +6,15 @@ Artículo (id_art, tipo, desc, stock, precio)
 Pedidos (id_ped, fechaPed, fechaEnv, id_cli (FK)) 
 Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
 
-1.Listar los DNI, apellido y nombre de los clientes que solo compraron artículos con el tipo 'Heladera'. 
-2.Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
-3.Eliminar el Pedido con id_ped 12345.
-4.Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
-5.Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
-6.Listar los artículos que se vendieron más de 15 veces durante el 2023.
+1. Listar los DNI, apellido y nombre de los clientes que solo compraron artículos con el tipo 'Heladera'. 
+2. Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
+3. Eliminar el Pedido con id_ped 12345.
+4. Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
+5. Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
+6. Listar los artículos que se vendieron más de 15 veces durante el 2023.
 
 ﻿AR:
-Este es un texto con un color especial: `#FF5733`.
+
 1. 
 ArticulosNOHeladeras <= (σ (tipo <> 'Heladera') (Articulo))
 ClientesNOHeladeras <= Cliente |x| ( Pedidos |x| ( Detalle_Pedido |x| ArticuloNOHeladeras))

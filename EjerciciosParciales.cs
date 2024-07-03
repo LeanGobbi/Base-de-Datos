@@ -41,7 +41,7 @@ Detalle_Pedido <= Detalle_Pedido - (σ (id_ped = 12345) (Detalle_Pedido))
 4.
 ClientesxArticulo <= π id_cli, id_art Cliente |x| (Pedidos |x| Detalle_Pedido))
 ArticulosTodos <= π id_art (Articulo)
-ClientesTODOSArticulos <= π nombre,apellido Cliente |x| (ClientesxArticulo % ArticulosTodos)
+ClientesTODOSArticulos <= π nombre,apellido (Cliente |x| (ClientesxArticulo % ArticulosTodos))
 
 
 SQL:
@@ -125,11 +125,15 @@ SociosPrestamosSOLOJunio <= π DNI, CUIL, apellido, nombre, domicilio, telefono 
 δ (precio = precio * 1,1) (Libro)
 
 4.
-SociosxPrestamo <= π DNI, ISBN (Prestamo x Detalle_Prestamo)
+SociosxPrestamo <= π DNI, ISBN (Prestamo |x| Detalle_Prestamo)
 LibrosTodos <= π ISBN (Libro)
 SociosLibrosTodos <= π DNI, CUIL, apellido, nombre, domicilio, telefono (Socio |x| (SociosxPrestamo % LibrosTodos)
 
 SQL:
+
+2.
+
+                                                                         
                                                                          
   
 

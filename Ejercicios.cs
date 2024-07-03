@@ -46,27 +46,56 @@ ClientesTODOSArticulos <= π nombre,apellido Cliente |x| (ClientesxArticulo % Ar
 
 SQL:
 
-2.Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
-3.Eliminar el Pedido con id_ped 12345.
-4.Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
-5.Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
-6.Listar los artículos que se vendieron más de 15 veces durante el 2023.
+Consultas (Realizar en AR: 1, 2, 3 y 4 y en SQL: 2, 3, 4, 5 y 6)
 
-σ
+Cliente = (id_cli, DNI, apellido, nombre, domicilio, contacto) 
+Artículo (id_art, tipo, desc, stock, precio)
+Pedidos (id_ped, fechaPed, fechaEnv, id_cli (FK)) 
+Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
+
+1. Listar los DNI, apellido y nombre de los clientes que solo compraron artículos con el tipo 'Heladera'. 
+2. Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
+3. Eliminar el Pedido con id_ped 12345.
+4. Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
+5. Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
+6. Listar los artículos que se vendieron más de 15 veces durante el 2023.
+
 
 2. 
-SELECT DISTINCT c.contacto
+SELECT DISTINCT contacto
 FROM Cliente c
 INNER JOIN Pedidos p ON (p.id_cli = c.id_cli)
 WHERE YEAR (p.fechaPed) = 2023
 
 INTERSECT
-  SELECT DISTINCT c.contacto
+  SELECT DISTINCT contacto
   FROM Cliente c
   INNER JOIN Pedidos p ON (p.id_cli = c.id_cli)
   WHERE YEAR (p.fechaPed) = 2024
 
 3.
+DELETE FROM Pedidos p
+WHERE (p.id_ped = 12345)
+DELETE FROM Detalle_Pedido dp
+WHERE (dp.id_ped = 12345)
+
+4.
+SELECT apellido, nombre
+FROM Cliente c
+WHERE NOT EXISTS (
+  SELECT *
+  FROM Articulo a
+    WHERE NOT EXISTS (
+      SELECT *
+      FROM Detalle_Pedido dp
+      INNER JOIN Pedidos p ON (p.id_ped = dp.id_ped)
+      WHERE (dp.id_art = a.id_art) AND (p.id_cli = c.id_cli)))
+ORDER BY apellido
+
+5.
+SELECT 
+
+      
 
 
 

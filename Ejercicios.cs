@@ -174,15 +174,3 @@ HAVING cantidad_prestamos > ALL (
   GROUP BY s.DNI)
                                                                          
   
-  Resolver del 1 al 4 AR y del 2 al 6 en SQL
-Socio = (DNI,CUIL, apellido, nombre, domicilio, telefono)
-Libro = (ISBN, título, autor, género, stock, precio)
-Préstamo = (id_prestamo, fechaPrestamo, fechaDevolucionTentativa, fechaDevEfectiva?, DNI(FK)) 
-Detalle_Préstamo = (id_prestamo (FK), ISBN (FK), precio, estado_dev?)
-  
-1. Listar los datos de los socios que tienen préstamos con devoluciones (fechaDevEfectiva) mayor a la fecha pactada y también tienen devoluciones donde el estado_dev es malo.
-2. Listar los socios que solo tienen préstamos en el mes actual. (DEVUELTOS O NO)
-3. Modificar el precio de los libros incrementándolo en un 10%.
-4. Listar los socios que tuvieron prestados todos los libros.
-5. Informar la cantidad de préstamos del mes actual.
-6. Listar todos los datos del socio o de los socios que tienen mayor cantidad de préstamos en el año 2023.

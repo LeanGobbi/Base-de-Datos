@@ -117,13 +117,21 @@ SociosFinales <= π DNI, CUIL, apellido, nombre, domicilio, telefono (Socio |x| 
 
 2.
 
-SociosPrestamosJunio <= π DNI (σ (fechaPrestamo >= '01/06/2024') ^ (fechaPrestamo =< '30/06/2024') (Socio |x| Prestamo))
+SociosPrestamosJunio <= π DNI (σ (fechaPrestamo >= '01/06/2024') ∧ (fechaPrestamo =< '30/06/2024') (Socio |x| Prestamo))
 SociosPrestamosNOJunio <= π DNI (σ (fechaPrestamo < '01/06/2024') ∨ (fechaPrestamo > '30/06/2024') (Socio |x| Prestamo))
 SociosPrestamosSOLOJunio <= π DNI, CUIL, apellido, nombre, domicilio, telefono (Socio |x| (SociosPrestamosJunio - SociosPrestamosNOJunio))
 
-3.
+3. 
+δ (precio = precio * 1,1) (Libro)
 
+4.
+SociosxPrestamo <= π DNI, ISBN (Prestamo x Detalle_Prestamo)
+LibrosTodos <= π ISBN (Libro)
+SociosLibrosTodos <= π DNI, CUIL, apellido, nombre, domicilio, telefono (Socio |x| (SociosxPrestamo % LibrosTodos)
 
+SQL:
+                                                                         
+  
 
 
 

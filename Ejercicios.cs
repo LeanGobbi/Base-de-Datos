@@ -59,10 +59,11 @@ INTERSECT
   WHERE YEAR (p.fechaPed) = 2024
 
 3.
-DELETE FROM Pedidos p
-WHERE (p.id_ped = 12345)
 DELETE FROM Detalle_Pedido dp
 WHERE (dp.id_ped = 12345)
+  
+DELETE FROM Pedidos p
+WHERE (p.id_ped = 12345)
 
 4.
 SELECT c.apellido, c.nombre
@@ -162,15 +163,166 @@ FROM Prestamo p
 WHERE MONTH (p.fechaPrestamo) = 6
 
 6.                                                                                                                                               
-SELECT s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono, COUNT (p.idprestamo) as cantidad_prestamos
+SELECT s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono
 FROM Socio s
 INNER JOIN Prestamo p ON (p.DNI = s.DNI)
 WHERE YEAR (p.fechaPrestamo) = 2023
 GROUP BY s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono
-HAVING cantidad_prestamos > ALL (
-  SELECT COUNT (p.id_prestamo)
-  FROM Prestamo p
-  WHERE YEAR (p.fechaPrestamo) = 2023
-  GROUP BY s.DNI)
+HAVING COUNT (p.id_prestamo) > ALL (
+  SELECT COUNT (p2.id_prestamo)
+  FROM Prestamo p2
+  WHERE YEAR (p2.fechaPrestamo) = 2023
+  GROUP BY p2.DNI)
+
+
+
+ALGEBRA RELACIONAL
                                                                          
-  
+Ejercicio 5
+Marca = (#marca, nombMarca, descripción)
+Modelo = (#modelo, nombModelo, descripción)
+Celular = (#chip, #modelo, #marca, descripción, precio, color, #local, vendido) //vendido será true si fue
+vendido
+Local = (#local, calle, nro, ciudad, teléfono, razon_social)
+                                                                         
+1. Listar nombres de marcas que se venden en locales de ‘Lincoln’ y en locales de ‘Junín’.
+2. Listar nombres de marcas que solo se vendieron en locales de ‘La Plata’.
+3. Actualizar el precio de todos los celulares del local con razón social ‘VendeCeluZ’ aumentando el
+precio actual un 70%.
+4. Listar razón social y teléfono de locales que vendieron celulares de modelo ‘modelo1’ y que se
+encuentren en ‘La Plata’.
+5. Listar información de locales que hayan vendido celulares de todas las marcas.
+6. Listar información de modelos que solo se vendieron en ‘Capital Federal’.
+7. Borrar el local con #local: 35.
+8. Lista los locales que vendieron celular de la marca ‘marcaA’ que también vendieron la marca ‘marcaB’
+
+1.
+MarcasLincoln <= π nombMarca (σ (ciudad = 'Lincoln') (Local |x| (Marca |x| Celular)))
+MarcasJunin <= π nombMarca (σ (ciudad = 'Junin') (Local |x| (Marca |x| Celular)))
+MarcasAmbas <= (MarcasLincoln ∩ MarcasJunin)                           
+
+2.
+MarcasLP <= π nombMarca (σ (ciudad = 'La Plata') (Local |x| (Marca |x| Celular)))
+MarcasNOLP <= π nombMarca (σ (ciudad <> 'La Plata') (Local |x| (Marca |x| Celular)))                            
+MarcasSOLOLP  <= (MarcasLP - MarcasNOLP)                          
+
+3.
+δ (precio = precio * 1.7) <= (σ (razon_social = 'VendeCeluZ') (Local |x| Celular))
+                            
+4.
+LocalesModelo1 <= π razon_social, telefono (σ (nombModelo = 'modelo1') (Modelo |x| (Celular |x| Local)))
+LocalesLP <= π razon_social, telefono (σ (ciudad = 'La Plata') (Local |x| (Marca |x| Celular))
+LocalesFinales <= (LocalesModelo1 ∩ LocalesLP)                         
+                           
+5.
+MarcasTodas <= π marca (Marca)
+LocalesxMarcas <= π local, marca (Celular)                                      
+LocalesTodasMarcas <= π local, calle, nro, ciudad, telefono, razon_social (Local |x| (LocalesxMarcas % MarcasTodas))
+
+6.  
+ModelosCP <= π modelo, nombModelo, descripcion (σ (ciudad = 'Capital Federal') (Local |x| (Modelo |x| Celular)))
+ModelosFUERACP <= π modelo, nombModelo, descripcion (σ (ciudad <> 'Capital Federal') (Local |x| (Modelo|x| Celular)))
+ModelosSOLOCP <= (ModelosCP - ModelosFUERACP)                           
+
+7.
+Local <= Local - (σ (#local = 35) (Local))                                      
+
+8.
+LocalesMarcaA <= π #local, calle, nro, ciudad, teléfono, razon_social (σ (nombMarca = 'marcaA') (Marca |x| (Celular |x| Local)))
+LocalesMarcaB <= π #local, calle, nro, ciudad, teléfono, razon_social (σ (nombMarca = 'marcaB') (Marca |x| (Celular |x| Local)))
+LocalesFinales <= (LocalesMarcaA ∩ LocalesMarcaB)   
+
+SQL
+                                       
+Ejercicio 7
+Cartero = (DNI,nombreYApe, dirección, teléfono)
+Sucursal = (IDSUC, nombreS,direcciónS, teléfonoS)
+Envio = (NROENVIO, DNI, IDCLIENTEEnvia, IDCLIENTERecibe, IDSUC, fecha, recibido, fechaRecibe,
+direcciónEntrega) //recibido es blanco sino se entregó aún el envío
+Cliente = (IDCLIENTE, DNI,nombreYApe, dirección, teléfono)
+                                       
+1. Reportar nombre y apellido, dirección y teléfono del cartero que realizó más envíos.
+2. Listar para cada sucursal, la cantidad de envíos realizados a alguna dirección de envío que
+contenga el string ‘Ju’. Informar nombre de sucursal y cantidad de envíos correspondiente. Ordenar
+por nombre sucursal.
+3. Listar datos personales de carteros que entregaron envíos a todas las sucursales.
+4. Informar cantidad de envíos no entregados del mes de mayo de 2019.
+5. Borrar al cliente con IDCLIENTE: 334.
+6. Listar datos personales de carteros que no entregaron envío a clientes(receptor) residentes en ‘La
+Plata’ pero si realizaron envíos de clientes (emisor) que residen en ‘Wilde’ (el cliente que envía vive
+en Wilde).
+7. Reportar información de sucursales que realizaron envíos durante 2020 o que tengan dirección en
+Tucuman.
+8. Listar datos personales de clientes que no realizaron envíos a la sucursal con nombre ‘La Amistad
+1’.
+9. Listar datos personales de carteros que realizaron envíos durante 2019 a clientes con DNI inferior a
+27329882.
+10. Listar los datos de los carteros que aún no hayan realizado ninguna entrega.
+
+1.
+SELECT c.nombreYApe, c.direccion, c.telefono
+FROM Cartero c
+INNER JOIN Envio e ON (e.DNI = c.DNI)
+GROUP BY c.nombreYApe, c.direccion, c.telefono
+HAVING COUNT (e.NROENVIO) > ALL (
+  SELECT COUNT (e2.NROENVIO)
+  FROM Envio e2
+  GROUP BY e2.DNI)
+                                       
+2.
+SELECT s.nombreS, COUNT (e.NROENVIO) as cantidad_envios
+FROM Sucursal s
+INNER JOIN Envio e ON (e.IDSUC = s.IDSUC)
+WHERE (e.DireccionEntrega LIKE "%Ju%")
+GROUP BY s.nombreS
+ORDER BY s.nombreS
+
+3.
+SELECT c.DNI, c.nombreYApe, c.direccion, c.telefono
+FROM Cartero c
+WHERE NOT EXISTS (
+  SELECT * 
+  FROM Sucursal s
+  WHERE NOT EXISTS (
+    SELECT *
+    FROM Envio e
+    WHERE ((s.IDSUC = e.IDSUC) and (c.DNI = e.DNI))))
+
+4.     
+SELECT COUNT (*)
+FROM Envio e
+WHERE ((e.recibido IS NULL) and (YEAR (e.fecha) = 2019) and (MONTH (e.fecha) = 5))
+
+5.
+
+DELETE FROM Envio e
+WHERE ((e.IDCLIENTEEnvia = 334) or (e.IDCLIENTERecibe) = 334))
+
+DELETE FROM
+Cliente c
+WHERE (c.IDCLIENTE = 334)                                      
+                                       
+Cartero = (DNI,nombreYApe, dirección, teléfono)
+Sucursal = (IDSUC, nombreS,direcciónS, teléfonoS)
+Envio = (NROENVIO, DNI, IDCLIENTEEnvia, IDCLIENTERecibe, IDSUC, fecha, recibido, fechaRecibe,
+direcciónEntrega) //recibido es blanco sino se entregó aún el envío
+Cliente = (IDCLIENTE, DNI,nombreYApe, dirección, teléfono)
+
+                  
+1. Reportar nombre y apellido, dirección y teléfono del cartero que realizó más envíos.
+2. Listar para cada sucursal, la cantidad de envíos realizados a alguna dirección de envío que
+contenga el string ‘Ju’. Informar nombre de sucursal y cantidad de envíos correspondiente. Ordenar
+por nombre sucursal.
+3. Listar datos personales de carteros que entregaron envíos a todas las sucursales.
+4. Informar cantidad de envíos no entregados del mes de mayo de 2019.
+5. Borrar al cliente con IDCLIENTE: 334.
+6. Listar datos personales de carteros que no entregaron envío a clientes(receptor) residentes en ‘La
+Plata’ pero si realizaron envíos de clientes (emisor) que residen en ‘Wilde’ (el cliente que envía vive
+en Wilde).
+7. Reportar información de sucursales que realizaron envíos durante 2020 o que tengan dirección en
+Tucuman.
+8. Listar datos personales de clientes que no realizaron envíos a la sucursal con nombre ‘La Amistad
+1’.
+9. Listar datos personales de carteros que realizaron envíos durante 2019 a clientes con DNI inferior a
+27329882.
+10. Listar los datos de los carteros que aún no hayan realizado ninguna entrega.                                                                         

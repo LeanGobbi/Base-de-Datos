@@ -132,7 +132,6 @@ SociosLibrosTodos <= π DNI, CUIL, apellido, nombre, domicilio, telefono (Socio 
 SQL:
 
 2.
-
 SELECT s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono                                                                         
 FROM Socio s
 INNER JOIN Prestamo p ON (p.DNI = s.DNI)
@@ -141,8 +140,7 @@ WHERE MONTH (p.fechaPrestamo) = 6 and s.DNI NOT IN (
   FROM Prestamo p
   WHERE MONTH (p.fechaPrestamo) <> 6)
 
-3.
-                                                                         
+3.                                                                       
 UPDATE Libro l 
 SET (l.precio = l.precio * 1.1)
 

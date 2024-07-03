@@ -46,29 +46,14 @@ ClientesTODOSArticulos <= π nombre,apellido Cliente |x| (ClientesxArticulo % Ar
 
 SQL:
 
-Consultas (Realizar en AR: 1, 2, 3 y 4 y en SQL: 2, 3, 4, 5 y 6)
-
-Cliente = (id_cli, DNI, apellido, nombre, domicilio, contacto) 
-Artículo (id_art, tipo, desc, stock, precio)
-Pedidos (id_ped, fechaPed, fechaEnv, id_cli (FK)) 
-Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
-
-1. Listar los DNI, apellido y nombre de los clientes que solo compraron artículos con el tipo 'Heladera'. 
-2. Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
-3. Eliminar el Pedido con id_ped 12345.
-4. Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
-5. Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
-6. Listar los artículos que se vendieron más de 15 veces durante el 2023.
-
-
 2. 
-SELECT DISTINCT contacto
+SELECT DISTINCT c.contacto
 FROM Cliente c
 INNER JOIN Pedidos p ON (p.id_cli = c.id_cli)
 WHERE YEAR (p.fechaPed) = 2023
 
 INTERSECT
-  SELECT DISTINCT contacto
+  SELECT DISTINCT c.contacto
   FROM Cliente c
   INNER JOIN Pedidos p ON (p.id_cli = c.id_cli)
   WHERE YEAR (p.fechaPed) = 2024
@@ -80,7 +65,7 @@ DELETE FROM Detalle_Pedido dp
 WHERE (dp.id_ped = 12345)
 
 4.
-SELECT apellido, nombre
+SELECT c.apellido, c.nombre
 FROM Cliente c
 WHERE NOT EXISTS (
   SELECT *
@@ -93,15 +78,40 @@ WHERE NOT EXISTS (
 ORDER BY apellido
 
 5.
-SELECT 
+SELECT c.dni, c.nombre, c.apellido, count (id_ped) as cantidad_pedidos
+FROM Cliente c
+LEFT JOIN Pedidos p ON (p.id_cli = c.id_cli)
+GROUP BY dni, nombre, apellido
+ORDER BY cantidad_pedidos DESC
 
-      
+6.
+SELECT a.id_art, a.tipo, a.desc, a.stock, a.precio
+FROM Articulo a
+INNER JOIN Detalle_Pedido dp ON (dp.id_art = a.id_art)
+INNER JOIN Pedidos p ON (p.id_ped = dp.id_ped)
+WHERE YEAR (fechaPed) = 2023
+GROUP BY a.id_art, a.tipo, a.desc, a.stock, a.precio
+HAVING COUNT (*) > 15
 
 
 
 
 
 
+
+
+Consultas (Realizar en AR: 1, 2, 3 y 4 y en SQL: 2, 3, 4, 5 y 6)
+Cliente = (id_cli, DNI, apellido, nombre, domicilio, contacto) 
+Artículo (id_art, tipo, desc, stock, precio)
+Pedidos (id_ped, fechaPed, fechaEnv, id_cli (FK)) 
+Detalle_Pedido (id_ped (FK), id_art (FK), cant, pre_unit)
+
+1. Listar los DNI, apellido y nombre de los clientes que solo compraron artículos con el tipo 'Heladera'. 
+2. Listar el contacto de los clientes que tienen pedidos en el año 2023 y también en 2024.
+3. Eliminar el Pedido con id_ped 12345.
+4. Listar apellido y nombre de ios clientes que compraron todos los artículos. En SQL ordenar por apellido.
+5. Listar para cada cliente, el DN!, nombre, apellido y cantidad de pedidos. Ordenar por cantidad de pedidos descendentemente.
+6. Listar los artículos que se vendieron más de 15 veces durante el 2023.
 
 
 Resolver del 1 al 4 AR y del 2 al 6 en SQL

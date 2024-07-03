@@ -157,9 +157,23 @@ WHERE NOT EXISTS (
       WHERE ((s.DNI = p.DNI) and (l.ISBN = dp.ISBN))))
       
 5.
+
+SELECT COUNT (p.id_prestamo) AS cantidad_prestamos
+FROM Prestamo p
+WHERE MONTH (p.fechaPrestamo) = 6
+
+6.                                                                         
                                                                          
-                                                                         
-                                                                         
+SELECT s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono, COUNT (p.idprestamo) as cantidad_prestamos
+FROM Socio s
+INNER JOIN Prestamo p ON (p.DNI = s.DNI)
+WHERE YEAR (p.fechaPrestamo) = 2023
+GROUP BY s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono
+HAVING cantidad_prestamos > ALL (
+  SELECT COUNT (p.id_prestamo)
+  FROM Prestamo p
+  WHERE YEAR (p.fechaPrestamo) = 2023
+  GROUP BY s.DNI)
                                                                          
   
 

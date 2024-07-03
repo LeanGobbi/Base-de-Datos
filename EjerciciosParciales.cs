@@ -157,13 +157,11 @@ WHERE NOT EXISTS (
       WHERE ((s.DNI = p.DNI) and (l.ISBN = dp.ISBN))))
       
 5.
-
 SELECT COUNT (p.id_prestamo) AS cantidad_prestamos
 FROM Prestamo p
 WHERE MONTH (p.fechaPrestamo) = 6
 
-6.                                                                         
-                                                                         
+6.                                                                                                                                               
 SELECT s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono, COUNT (p.idprestamo) as cantidad_prestamos
 FROM Socio s
 INNER JOIN Prestamo p ON (p.DNI = s.DNI)
@@ -176,10 +174,6 @@ HAVING cantidad_prestamos > ALL (
   GROUP BY s.DNI)
                                                                          
   
-
-
-
-
   Resolver del 1 al 4 AR y del 2 al 6 en SQL
 Socio = (DNI,CUIL, apellido, nombre, domicilio, telefono)
 Libro = (ISBN, título, autor, género, stock, precio)

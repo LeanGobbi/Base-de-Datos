@@ -133,6 +133,34 @@ SQL:
 
 2.
 
+SELECT s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono                                                                         
+FROM Socio s
+INNER JOIN Prestamo p ON (p.DNI = s.DNI)
+WHERE MONTH (p.fechaPrestamo) = 6 and s.DNI NOT IN (
+  SELECT p.DNI
+  FROM Prestamo p
+  WHERE MONTH (p.fechaPrestamo) <> 6)
+
+3.
+                                                                         
+UPDATE Libro l 
+SET (l.precio = l.precio * 1.1)
+
+4.
+SELECT s.DNI, s.CUIL, s.apellido, s.nombre, s.domicilio, s.telefono 
+FROM Socio s
+WHERE NOT EXISTS (
+  SELECT *
+  FROM Libro l
+  WHERE NOT EXISTS (
+    SELECT *
+      FROM Detalle_Prestamo dp
+      INNER JOIN Prestamo p ON (p.id_prestamo = dp.id_prestamo)
+      WHERE ((s.DNI = p.DNI) and (l.ISBN = dp.ISBN))))
+      
+5.
+                                                                         
+                                                                         
                                                                          
                                                                          
   
@@ -143,7 +171,7 @@ SQL:
   Resolver del 1 al 4 AR y del 2 al 6 en SQL
 Socio = (DNI,CUIL, apellido, nombre, domicilio, telefono)
 Libro = (ISBN, título, autor, género, stock, precio)
-Préstamo = (id_prestamo, fecha Prestamo, fechaDevolucionTentativa, fechaDevEfectiva?, DNI(FK)) 
+Préstamo = (id_prestamo, fechaPrestamo, fechaDevolucionTentativa, fechaDevEfectiva?, DNI(FK)) 
 Detalle_Préstamo = (id_prestamo (FK), ISBN (FK), precio, estado_dev?)
   
 1. Listar los datos de los socios que tienen préstamos con devoluciones (fechaDevEfectiva) mayor a la fecha pactada y también tienen devoluciones donde el estado_dev es malo.

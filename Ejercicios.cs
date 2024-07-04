@@ -380,14 +380,6 @@ Tucuman.
 10. Listar los datos de los carteros que aún no hayan realizado ninguna entrega.                                                                         
 
 
-
-
-
-
-
-
-
-
 PaquetesTuristicos = (codP, cantDias, cantPersonas, precio, disponible, destino, detalles)
 Tipo_Promocion = (codPromo, detalle)
 Promocion = (codPromo(FK), desde, hasta?, condición, descuento, codP(FK)) // El descuento es un % Compra (ticket, fecha)
@@ -423,7 +415,48 @@ PaquetesTodasPromociones <= π codP, cantDias, cantPersonas, precio, disponible,
 
 4.
 δ ((precio = 20.256) ^ (cantDias = 4)) <= (σ (codigo = 12345) (PaquetesTuristicos))
-                                                                         
+
+SQL: 
+
+2.
+SELECT p.codP, p.cantDias, p.cantPersonas, p.precio, p.disponible, p.destino, p.detalles                                                                         
+FROM PaquetesTuristicos p
+LEFT JOIN Promocion pro ON (p.codP = pro.codP)
+WHERE (pro.codPromo IS NULL)
+
+3.
+SELECT p.codP, p.cantDias, p.cantPersonas, p.precio, p.disponible, p.destino, p.detalles                                                                         
+FROM PaquetesTuristicos p
+WHERE NOT EXISTS (
+  SELECT *
+  FROM Tipo_Promocion tpro
+  WHERE NOT EXISTS (
+    SELECT *
+    FROM Promocion pro
+    WHERE ((p.codP = pro.codP) and (pro.codPromo = tpro.codPromo))))
+
+4.
+UPDATE PaquetesTuristicos pt
+SET (pt.precio = 20.256, pt.cantDias = 4)
+WHERE (pt.codP = 12345)
+
+5.
+SELECT p.codP, p.cantDias, p.cantPersonas, p.precio, p.disponible, p.destino, p.detalles,  SUM (d.cantidad) as cantidad_paquetesTuristicos                                                                         
+FROM PaquetesTuristicos p
+INNER JOIN Detalle d ON (p.codP = d.codP)
+INNER JOIN Compra c ON (d.ticket = c.ticket)
+WHERE YEAR (c.fecha) = 2022 
+GROUP BY p.codP, p.cantDias, p.cantPersonas, p.precio, p.disponible, p.destino, p.detalles               
+HAVING COUNT (c.ticket) > 10
+ORDER BY p.codP
+
+6.
+SELECT SUM (d.precio_unitario * d.cantidad) as importe_total, SUM (d.cantidad * (d.precio_unitario - d.descuento)) as importe_cobrar, COUNT (d.ticket) as cantidad_detalles
+FROM Compra c
+INNER JOIN Detalle d ON (c.ticket = d.ticket)
+WHERE (c.ticket = 1234556789)
+GROUP BY c.ticket
+
 PaquetesTuristicos = (codP, cantDias, cantPersonas, precio, disponible, destino, detalles)
 Tipo_Promocion = (codPromo, detalle)
 Promocion = (codPromo(FK), desde, hasta?, condición, descuento, codP(FK)) // El descuento es un % 

@@ -457,22 +457,94 @@ INNER JOIN Detalle d ON (c.ticket = d.ticket)
 WHERE (c.ticket = 1234556789)
 GROUP BY c.ticket
 
-PaquetesTuristicos = (codP, cantDias, cantPersonas, precio, disponible, destino, detalles)
-Tipo_Promocion = (codPromo, detalle)
-Promocion = (codPromo(FK), desde, hasta?, condición, descuento, codP(FK)) // El descuento es un % 
-Compra (ticket, fecha)
-Detalle = (ticket(FK), codP(FK), cantidad, precio_unitario, descuento) //Descuento es un monto y es 0 cuando no tiene descuento
-Nota una compra puede incluir más de un paquete turistico diferente si es así tendrá más de un detalle
 
-1. Listar la información de los paquetes turisticos que tienen promociones vigentes con descuento mayor al 20%, junto a la información de la promoción y el tipo de promoción.
-2. Listar los paquetes turísticos que no tienen ni tuvieron promociones.
-3. Listar los paquetes turísticos que tuvieron o tienen promociones de todos los tipos. 
-4. Modificar el paquete turistico con código 12345 a precio=20.256 y cantDias=4
-5. Listar los datos de los paquetes turísticos y cantidad de aquellos paquetes que estén en más de 10 ventas en el 2022. Ordenar por código de paquete ascendente.
-6. Listar el importe total (sin considerar descuentos), el importe a cobrar (total menos descuentos) y la cantidad de detalles correspondientes a la compra nro 123456789.
-Nota: Cuando se pide datos de X, mostrar todos los datos de la tabla a la que hace referencia
+Estudio= (nombre_estudio, grado_complejidad, requiere_acompañante)
+Obra Social (nombre, descripción)
+Paciente (DNI, nombreYApellido, domicilio, telefono)
+Turno= ((nombre_estudio(FK), DNI(FK), fecha_turno, hora_turno motivo, nombre (FK)?, observaciones?) // el nombre es de la Obra Social por la que se va a atender en ese turno si es que la utiliza
+Realizar 1, 2, 3 y 4 en AR y 2, 3, 4, 5 y 6 en SQL
+1. Listar datos de los pacientes, hora del turno y datos de la obra social, para el estudio "Endoscopia" el día 30/06/2022.
+2. Listar las obras sociales que tuvieron cobertura en todos los estudios.
+3. Listar los pacientes que se realizaron estudios en el año 2021 pero no se atendieron en el año 2019. 4. Eliminar el paciente con DNI: 10756963.
+5. Listar para cada Estudio la cantidad de turnos en el 2022.
+6. Listar los pacientes que se hayan realizado más de 5 estudios en el año 2020
+Nota: siempre que se pida los datos de una tabla (por ej. "datos de paciente"), mostrar todos los datos de la tabla.
+
+                        
+
+1.
+DatosPacientes <= π DNI, nombreYApellido, domicilio, telefono, hora_turno, nombre, descripcion (σ ((nombre_estudio = 'Endoscopia') ^ (fecha_turno = '30/06/2022')) (ObraSocial |x| (Paciente |x| Turno)))
+
+2.
+EstudiosTodos <= π nombre_estudio (Estudio)
+ObrasxEstudios <= π nombre_estudio, nombre (ObraSocial |x| Turno)        
+ObrasTodosEstudios <= π nombre, descripcion (ObraSocial |x| (ObrasxEstudios % EstudiosTodos))
+
+3.
+Pacientes2021 <= π DNI, nombreYApellido, domicilio, telefono (σ ((fecha_turno >= '01/01/2021') ^ (fecha_turno =< '31/12/2021')) (Paciente |x| Turno)                                   
+Pacientes2019 <= π DNI, nombreYApellido, domicilio, telefono (σ ((fecha_turno >= '01/01/2019') ^ (fecha_turno =< '31/12/2019')) (Paciente |x| Turno)
+PacientesSOLO2021 <= (Pacientes2021 - Pacientes2019)      
+
+4.
+Turno <= Turno - (σ (DNI = 10756963) (Turno))                                                         
+Paciente <= Paciente - (σ (DNI = 10756963) (Paciente))
+
+SQL:
+
+2.
+SELECT o.nombre, o.descripcion
+FROM ObraSocial o
+WHERE NOT EXISTS (
+  SELECT *
+  FROM Turno t
+  WHERE NOT EXISTS (
+    SELECT *
+      FROM Estudio e
+      WHERE ((o.nombre = t.nombre) and (e.nombre_estudio = t.nombre_estudio))))
+
+3.
+SELECT p.DNI, p.nombreYApellido, p.domicilio, p.telefono
+FROM Paciente p
+INNER JOIN Turno t ON (p.DNI = t.DNI)
+WHERE YEAR (t.fecha_turno) = 2021 and p.DNI NOT IN (
+  SELECT t.DNI
+  FROM Turno t
+  WHERE YEAR (t.fecha_turno) = 2019)
+                                                              
+4.
+DELETE FROM Turno t
+WHERE (t.DNI = 10756963)
+DELETE FROM Paciente p
+WHERE (p.DNI = 10756963)    
+
+5.
+SELECT e.nombre_estudio, e.grado_complejidad, e.requiere_acompañante, COUNT (t.nombre_estudio) as cantidad_turnos
+FROM Estudio e
+LEFT JOIN Turno t ON ((e.nombre_estudio = t.nombre_estudio) and YEAR (fecha_turno) = 2022)
+GROUP BY e.nombre_estudio, e.grado_complejidad, e.requiere_acompañante                                                               
+
+6.
+SELECT p.DNI, p.nombreYApellido, p.domicilio, p.telefono
+FROM Paciente p
+INNER JOIN Turno t ON (p.DNI = t.DNI)
+WHERE YEAR (t.fecha_turno) = 2020
+GROUP BY p.DNI, p.nombreYApellido, p.domicilio, p.telefono
+HAVING COUNT (e.nombre_estudio) > 5
 
 
+Estudio = (nombre_estudio, grado_complejidad, requiere_acompañante)
+ObraSocial (nombre, descripción)
+Paciente (DNI, nombreYApellido, domicilio, telefono)
+Turno= ((nombre_estudio(FK), DNI(FK), fecha_turno, hora_turno, motivo, nombre (FK)?, observaciones?) // el nombre es de la Obra Social por la que se va a atender en ese turno si es que la utiliza
+        
+Realizar 1, 2, 3 y 4 en AR y 2, 3, 4, 5 y 6 en SQL
 
+1. Listar datos de los pacientes, hora del turno y datos de la obra social, para el estudio "Endoscopia" el día 30/06/2022.
+2. Listar las obras sociales que tuvieron cobertura en todos los estudios.
+3. Listar los pacientes que se realizaron estudios en el año 2021 pero no se atendieron en el año 2019. 
+4. Eliminar el paciente con DNI: 10756963.
+5. Listar para cada Estudio la cantidad de turnos en el 2022.
+6. Listar los pacientes que se hayan realizado más de 5 estudios en el año 2020
+Nota: siempre que se pida los datos de una tabla (por ej. "datos de paciente"), mostrar todos los datos de la tabla.
 
                                                                          

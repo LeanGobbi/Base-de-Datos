@@ -83,7 +83,7 @@ SELECT c.dni, c.nombre, c.apellido, count (id_ped) as cantidad_pedidos
 FROM Cliente c
 LEFT JOIN Pedidos p ON (p.id_cli = c.id_cli)
 GROUP BY dni, nombre, apellido
-ORDER BY cantidad_pedidos DESC
+ORDER BY count (id_ped) DESC
 
 6.
 SELECT a.id_art, a.tipo, a.desc, a.stock, a.precio
@@ -547,4 +547,85 @@ Realizar 1, 2, 3 y 4 en AR y 2, 3, 4, 5 y 6 en SQL
 6. Listar los pacientes que se hayan realizado más de 5 estudios en el año 2020
 Nota: siempre que se pida los datos de una tabla (por ej. "datos de paciente"), mostrar todos los datos de la tabla.
 
-                                                                         
+
+
+
+
+1.
+Obras2022 <= π nombre, nombre, fecha, capacidad (σ ((fecha >= '01/01/2022') ^ (fecha =< '31/12/2022')) Obra |x| (Teatro |x| Espectaculo))     
+
+2.
+TeatrosTodos <= π nombre (Teatro)       
+ObrasxTeatro <= π nombre, nombre (Teatro |x| Espectaculo)
+ObrasTodosTeatros <= π nombre, cantidad_integrantes, descripcion, genero (Obra |x| (ObrasxTeatro % TeatrosTodos))
+
+3.
+Obras2021 <= π nombre, cantidad_integrantes, descripcion, genero (σ ((fecha >= '01/01/2021') ^ (fecha =< '31/12/2021')) (Obra |x| Espectaculo))
+Obras2019 <= π nombre, cantidad_integrantes, descripcion, genero (σ ((fecha >= '01/01/2019') ^ (fecha =< '31/12/2019')) (Obra |x| Espectaculo))
+Obras2021NO2019 <= Obras2021 - Obras2019
+
+4.
+ObrasLaOdisea <= π numero, nombre, domicilio (σ (nombre = 'La Odisea') (Teatro |x| Espectaculo))
+ObrasBalcon <= π numero, nombre, domicilio (σ (nombre = 'Un Balcón con Visitas') (Teatro |x| Espectaculo))
+TeatrosAmbasObras <= (ObrasLaOdisea ∩ ObrasBalcon)
+
+SQL:
+        
+2.
+SELECT o.nombre, o.cantidad_integrantes, o.descripcion, o.genero        
+FROM Obra o
+WHERE NOT EXISTS (
+  SELECT *
+  FROM Teatro t 
+  WHERE NOT EXISTS (
+    SELECT *
+    FROM Espectaculo e
+    WHERE ((o.nombre = e.nombre) and (t.numero = e.numero))))
+
+3.
+SELECT o.nombre, o.cantidad_integrantes, o.descripcion, o.genero        
+FROM Obra o
+INNER JOIN Espectaculo e ON (o.nombre = e.nombre)
+WHERE YEAR (e.fecha) = 2021 and o.nombre NOT IN (
+  SELECT e.nombre
+  FROM Espectaculo e
+  WHERE YEAR (e.fecha) = 2019)
+
+4.
+SELECT t.numero, t.nombre, t.domicilio
+FROM Teatro t
+INNER JOIN Espectaculo e ON (t.numero = e.numero)
+WHERE (e.nombre = 'La Odisea')
+
+INTERSECT
+        
+SELECT t.numero, t.nombre, t.domicilio
+FROM Teatro t
+INNER JOIN Espectaculo e ON (t.numero = e.numero)
+WHERE (e.nombre = 'Un Balcón con Visitas')
+
+5.
+SELECT o.nombre, o.cantidad_integrantes, o.descripcion, o.genero, COUNT (e.numero) as cantidad_espectaculos      
+FROM Obra o
+LEFT JOIN Espectaculo e ON (o.nombre = e.nombre)
+GROUP BY o.nombre, o.cantidad_integrantes, o.descripcion, o.genero
+
+Teatro = (numero, nombre, domicilio)
+Obra = (nombre, cantidad_integrantes, descripcion, genero) 
+Espectaculo = (numero(FK), nombre(FK), fecha, capacidad)
+Entrada = ((numero, nombre, fecha(FK), DNI(FK), zona, costo)
+
+6.
+SELECT e.numero, e.nombre, e.fecha, e.capacidad
+FROM Espectaculo e
+INNER JOIN Entrada ent ON ((e.numero = ent.numero) and (e.fecha = ent.fecha) and (e.nombre = ent.nombre))
+GROUP BY e.numero, e.nombre, e.fecha, e.capacidad
+HAVING COUNT (ent.DNI) = e.capacidad
+           
+Realizar 1, 2, 3 y 4 en AR y 2, 3, 4, 5 y 6 en SQL
+1. Listar nombre de la obra, nombre del teatro, fecha y capacidad de los espectáculos programados para lo que resta del año 2022.
+2. Listar las obras que se presentaron en todos los teatros.
+3. Listar las obras que se presentaron en el año 2021 pero no se presentaron en el año 2019.
+4. Listar los teatros en los que se presentó la obra "La Odisea" y también "Un Balcón con Visitas".
+5. Listar para cada obra la cantidad de espectáculos.
+6. Listar los datos de los espectáculos en los que la cantidad de entradas vendidas sea igual a la capacidad del espectaculo (espectaculo agotado)

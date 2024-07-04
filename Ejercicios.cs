@@ -272,8 +272,7 @@ HAVING COUNT (e.NROENVIO) > ALL (
 2.
 SELECT s.nombreS, COUNT (e.NROENVIO) as cantidad_envios
 FROM Sucursal s
-INNER JOIN Envio e ON (e.IDSUC = s.IDSUC)
-WHERE (e.DireccionEntrega LIKE "%Ju%")
+LEFT JOIN Envio e ON ((e.IDSUC = s.IDSUC) and (e.DireccionEntrega LIKE "%Ju%"))
 GROUP BY s.nombreS
 ORDER BY s.nombreS
 
@@ -294,14 +293,67 @@ FROM Envio e
 WHERE ((e.recibido IS NULL) and (YEAR (e.fecha) = 2019) and (MONTH (e.fecha) = 5))
 
 5.
-
 DELETE FROM Envio e
 WHERE ((e.IDCLIENTEEnvia = 334) or (e.IDCLIENTERecibe) = 334))
 
-DELETE FROM
-Cliente c
+DELETE FROM Cliente c
 WHERE (c.IDCLIENTE = 334)                                      
-                                       
+
+6.
+SELECT c.DNI, c.nombreYApe, c.direccion, c.telefono
+FROM Cartero c
+INNER JOIN Envio e ON (c.DNI = e.DNI)
+INNER JOIN Cliente cli ON ((e.IDCLIENTERecibe = cli.IDCLIENTE) and (e.recibido IS NULL))
+WHERE (cli.direccion = 'La Plata')
+                                                                         
+INTERSECT
+
+SELECT c.DNI, c.nombreYApe, c.direccion, c.telefono
+FROM Cartero c
+INNER JOIN Envio e ON (c.DNI = e.DNI)
+INNER JOIN Cliente cli ON ((e.IDCLIENTEEnvia = cli.IDCLIENTE) and (e.recibido IS NOT NULL))
+WHERE (cli.direccion = 'Wilde')
+
+7. 
+SELECT s.IDSUC, s.nombreS, s.direccionS, s.telefonoS
+FROM Sucursal s
+INNER JOIN Envio e ON (e.IDSUC = s.IDSUC)
+WHERE YEAR (e.fecha) = 2020 // O AGREGO UN AND CON s.DIRECCIONS = TUCUMAN
+                                                                        
+UNION
+
+SELECT s.IDSUC, s.nombreS, s.direccionS, s.telefonoS
+FROM Sucursal s
+WHERE (s.direccionS = 'Tucuman')
+
+                                                                         
+8.
+SELECT c.IDCLIENTE, c.DNI, c.nombreYApe, c.direccion, c.telefono
+FROM Cliente c
+INNER JOIN Envio e ON (c.IDCLIENTE = e.IDCLIENTEEnvia) 
+INNER JOIN Sucursal s ON (s.IDSUC = e.IDSUC)
+WHERE (s.nombreS <> 'La Amistad 1')
+
+UNION   
+
+SELECT c.IDCLIENTE, c.DNI, c.nombreYApe, c.direccion, c.telefono
+FROM Cliente c
+INNER JOIN Envio e ON (c.IDCLIENTE = e.IDCLIENTERecibe) 
+INNER JOIN Sucursal s ON (s.IDSUC = e.IDSUC)
+
+9.
+SELECT c.DNI, c.nombreYApe, c.direccion, c.telefono
+FROM Cartero c
+INNER JOIN Envio e ON (c.DNI = e.DNI)
+INNER JOIN Cliente cli ON (cli.IDCLIENTE = e.IDCLIENTERecibe)                                                                         
+WHERE (YEAR (e.fecha) = 2019 and (cli.DNI < 27329882))
+
+10.
+SELECT c.DNI, c.nombreYApe, c.direccion, c.telefono
+FROM Cartero c 
+LEFT JOIN Envio e ON (c.DNI = e.DNI)
+WHERE (e.NROENVIO IS NULL)
+                                                                         
 Cartero = (DNI,nombreYApe, dirección, teléfono)
 Sucursal = (IDSUC, nombreS,direcciónS, teléfonoS)
 Envio = (NROENVIO, DNI, IDCLIENTEEnvia, IDCLIENTERecibe, IDSUC, fecha, recibido, fechaRecibe,
@@ -326,3 +378,68 @@ Tucuman.
 9. Listar datos personales de carteros que realizaron envíos durante 2019 a clientes con DNI inferior a
 27329882.
 10. Listar los datos de los carteros que aún no hayan realizado ninguna entrega.                                                                         
+
+
+
+
+
+
+
+
+
+
+PaquetesTuristicos = (codP, cantDias, cantPersonas, precio, disponible, destino, detalles)
+Tipo_Promocion = (codPromo, detalle)
+Promocion = (codPromo(FK), desde, hasta?, condición, descuento, codP(FK)) // El descuento es un % Compra (ticket, fecha)
+Detalle= (ticket(FK), codP(FK), cantidad, precio_unitario, descuento) //Descuento es un monto y es 0 cuando no tiene descuento
+Nota una compra puede incluir más de un paquete turistico diferente si es así tendrá más de un detalle
+
+Realizar 1, 2, 3 y 4 en AR y 2, 3, 4, 5 y 6 en SQL
+
+1. Listar la información de los paquetes turisticos que tienen promociones vigentes con descuento mayor al 20%, junto a la información de la promoción y el tipo de promoción.
+2. Listar los paquetes turísticos que no tienen ni tuvieron promociones.
+3. Listar los paquetes turísticos que tuvieron o tienen promociones de todos los tipos. 
+4. Modificar el paquete turistico con código 12345 a precio=20.256 y cantDias=4
+5. Listar los datos de los paquetes turísticos y cantidad de aquellos paquetes que estén en más de 10 ventas en el 2022. Ordenar por código de paquete ascendente.
+6. Listar el importe total (sin considerar descuentos), el importe a cobrar (total menos descuentos) y la cantidad de detalles correspondientes a la compra nro 123456789.
+Nota: Cuando se pide datos de X, mostrar todos los datos de la tabla a la que hace referencia
+
+
+
+
+ALGEBRA RELACIONAL:
+
+1.                                                                        
+PaquetesTuristicos20% <= π codP, cantDias, cantPersonas, precio, disponible, destino, detalles, codPromo(FK), desde, hasta?, condición, descuento, detalle  (σ (descuento > 20) (Tipo_Promocion |x| (PaquetesTuristicos |x| Promocion)))
+
+2.
+PaquetesConPromocion <=  π codP, cantDias, cantPersonas, precio, disponible, destino, detalles (PaquetesTuristicos |x| Promocion)                                                                    
+PaquetesSinPromocion <=  PaquetesTuristicos - PaquetesConPromocion
+
+3.
+TiposTodos <= π codPromo (Tipo_Promocion)
+PaquetesxPromocion <= π codP, codPromo (Promocion)        
+PaquetesTodasPromociones <= π codP, cantDias, cantPersonas, precio, disponible, destino, detalles  (PaquetesTuristicos |x| (PaquetesxPromocion % TiposTodos))                                                                        
+
+4.
+δ ((precio = 20.256) ^ (cantDias = 4)) <= (σ (codigo = 12345) (PaquetesTuristicos))
+                                                                         
+PaquetesTuristicos = (codP, cantDias, cantPersonas, precio, disponible, destino, detalles)
+Tipo_Promocion = (codPromo, detalle)
+Promocion = (codPromo(FK), desde, hasta?, condición, descuento, codP(FK)) // El descuento es un % 
+Compra (ticket, fecha)
+Detalle = (ticket(FK), codP(FK), cantidad, precio_unitario, descuento) //Descuento es un monto y es 0 cuando no tiene descuento
+Nota una compra puede incluir más de un paquete turistico diferente si es así tendrá más de un detalle
+
+1. Listar la información de los paquetes turisticos que tienen promociones vigentes con descuento mayor al 20%, junto a la información de la promoción y el tipo de promoción.
+2. Listar los paquetes turísticos que no tienen ni tuvieron promociones.
+3. Listar los paquetes turísticos que tuvieron o tienen promociones de todos los tipos. 
+4. Modificar el paquete turistico con código 12345 a precio=20.256 y cantDias=4
+5. Listar los datos de los paquetes turísticos y cantidad de aquellos paquetes que estén en más de 10 ventas en el 2022. Ordenar por código de paquete ascendente.
+6. Listar el importe total (sin considerar descuentos), el importe a cobrar (total menos descuentos) y la cantidad de detalles correspondientes a la compra nro 123456789.
+Nota: Cuando se pide datos de X, mostrar todos los datos de la tabla a la que hace referencia
+
+
+
+
+                                                                         
